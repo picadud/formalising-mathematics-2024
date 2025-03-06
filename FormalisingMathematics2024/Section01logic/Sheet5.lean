@@ -25,23 +25,41 @@ and also the following two new tactics:
 variable (P Q R S : Prop)
 
 example : P ↔ P := by
-  sorry
+  rfl
   done
 
 example : (P ↔ Q) → (Q ↔ P) := by
-  sorry
+  intro h1
+  rw[h1]
   done
 
 example : (P ↔ Q) ↔ (Q ↔ P) := by
-  sorry
+  constructor
+  intro h1
+  rw[h1]
+  intro h2
+  rw[h2]
   done
 
 example : (P ↔ Q) → (Q ↔ R) → (P ↔ R) := by
-  sorry
+  intro h1
+  intro h2
+  rw[h1]
+  exact h2
   done
 
 example : P ∧ Q ↔ Q ∧ P := by
-  sorry
+  constructor
+  intro h1
+  cases' h1 with hP hQ
+  constructor 
+  exact hQ --why after 'change' I can't use intro anymore
+  exact hP
+  intro h2
+  cases' h2 with hP hQ
+  constructor
+  exact hQ
+  exact hP
   done
 
 example : (P ∧ Q) ∧ R ↔ P ∧ Q ∧ R := by

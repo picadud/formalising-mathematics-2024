@@ -119,7 +119,8 @@ Delete the `sorry`s and replace them with tactic proofs using `intro`,
 -/
 /-- Every proposition implies itself. -/
 example : P → P := by
-  sorry
+  intro h1
+  exact h1
   done
 
 /-
@@ -138,25 +139,42 @@ So the next level is asking you prove that `P → (Q → P)`.
 
 -/
 example : P → Q → P := by
-  sorry
+  intro h1
+  intro h2
+  exact h1
   done
 
 /-- If we know `P`, and we also know `P → Q`, we can deduce `Q`.
 This is called "Modus Ponens" by logicians. -/
 example : P → (P → Q) → Q := by
-  sorry
+  intro h1
+  intro h2
+  apply h2
+  exact h1
   done
 
 /-- `→` is transitive. That is, if `P → Q` and `Q → R` are true, then
   so is `P → R`. -/
 example : (P → Q) → (Q → R) → P → R := by
-  sorry
+  intro h1
+  intro h2
+  intro h3
+  apply h1 at h3
+  apply h2 at h3
+  exact h3
+
   done
 
 -- If `h : P → Q → R` with goal `⊢ R` and you `apply h`, you'll get
 -- two goals! Note that tactics operate on only the first goal.
 example : (P → Q → R) → (P → Q) → P → R := by
-  sorry
+  intro h1
+  intro h2
+  intro h3
+  apply h1
+  exact h3
+  apply h2
+  exact h3
   done
 
 /-
@@ -171,7 +189,15 @@ in this section, where you'll learn some more tactics.
 variable (S T : Prop)
 
 example : (P → R) → (S → Q) → (R → T) → (Q → R) → S → T := by
-  sorry
+  intro h1
+  intro h2
+  intro h3
+  intro h4
+  intro h5
+  apply h3
+  apply h4
+  apply h2
+  exact h5
   done
 
 example : (P → Q) → ((P → Q) → P) → Q := by
