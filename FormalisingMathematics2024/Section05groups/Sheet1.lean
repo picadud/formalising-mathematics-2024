@@ -51,18 +51,18 @@ example (g : G) : g⁻¹ * g = 1 :=
 -- with the name of the axiom it found. Note also that you can instead *guess*
 -- the names of the axioms. For example what do you think the proof of `1 * a = a` is called?
 example (a b c : G) : a * b * c = a * (b * c) := by
-  sorry
+  exact mul_assoc a b c
 
 -- can be found with `library_search` if you didn't know the answer already
 example (a : G) : a * 1 = a := by
-  sorry
+  exact mul_one a
 
 -- Can you guess the last two?
 example (a : G) : 1 * a = a := by
-  sorry
+  exact one_mul a
 
 example (a : G) : a * a⁻¹ = 1 := by
-  sorry
+  exact mul_inv_self a
 
 -- As well as the axioms, Lean has many other standard facts which are true
 -- in all groups. See if you can prove these from the axioms, or find them
@@ -71,26 +71,50 @@ example (a : G) : a * a⁻¹ = 1 := by
 variable (a b c : G)
 
 example : a⁻¹ * (a * b) = b := by
-  sorry
+  calc
+    _ = a⁻¹ * a * b := by exact (mul_assoc a⁻¹ a b).symm
+    _ = 1 * b := by simp only [mul_left_inv, one_mul]
+    _ = b  := by exact one_mul b
+
+
 
 example : a * (a⁻¹ * b) = b := by
-  sorry
+  exact mul_inv_cancel_left a b
 
 example {a b c : G} (h1 : b * a = 1) (h2 : a * c = 1) : b = c := by
   -- hint for this one if you're doing it from first principles: `b * (a * c) = (b * a) * c`
-  sorry
+  have h3: b * (a * c) = (b * a) * c := by exact (mul_assoc b a c).symm
+  rw[h1] at h3
+  rw[h2] at h3
+  simp at h3
+  exact h3
 
 example : a * b = 1 ↔ a⁻¹ = b := by
-  sorry
+  constructor
+  intro h1
+  calc
+    a⁻¹ = a⁻¹ * 1:= by exact self_eq_mul_right.mpr rfl
+    _ = a⁻¹ * (a * b) := by rw[h1]
+    _ = a⁻¹ * a * b := by exact (mul_assoc a⁻¹ a b).symm
+    _ = 1 * b := by simp
+    _ = b := by group
+
+
 
 example : (1 : G)⁻¹ = 1 := by
-  sorry
+  group
 
 example : a⁻¹⁻¹ = a := by
-  sorry
+  group
 
 example : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
-  sorry
+  calc
+    (a * b)⁻¹ = (a * b)⁻¹ * 1 := by exact self_eq_mul_right.mpr rfl
+    _ = (a * b)⁻¹ * (a * b * b⁻¹ * a⁻¹) := by simp
+    _ = ((a * b)⁻¹ * (a * b ))* b⁻¹ * a⁻¹:= by sorry
+    _ = 1 * b⁻¹ * a⁻¹ := by group
+    _ = b⁻¹ * a⁻¹ := by group
+
 
 /-
 
@@ -110,4 +134,15 @@ example : (b⁻¹ * a⁻¹)⁻¹ * 1⁻¹⁻¹ * b⁻¹ * (a⁻¹ * a⁻¹⁻¹�
 
 -- Try this trickier problem: if g^2=1 for all g in G, then G is abelian
 example (h : ∀ g : G, g * g = 1) : ∀ g h : G, g * h = h * g := by
-  sorry
+  intro g h1
+  have Hgh1: (g*h1) * (g*h1) = 1 := by exact h (g * h1)
+  calc
+    g * h1 = (g * h1)⁻¹ := by exact mul_eq_one_iff_eq_inv.mp (h (g * h1))
+    _ = h1⁻¹ * g⁻¹ := by group
+    _ = h1 * g := by
+      have hh1:= h
+      specialize hh1 h1
+      specialize h g
+      have h5: h1 = h1⁻¹ := by exact mul_eq_one_iff_eq_inv.mp hh1
+      have h6 : g = g⁻¹ := by exact mul_eq_one_iff_eq_inv.mp h
+      exact Mathlib.Tactic.LinearCombination.mul_pf (id h5.symm) (id h6.symm)
